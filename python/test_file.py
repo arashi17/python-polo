@@ -14,5 +14,7 @@ cryp_pairs_list = data_org.get_pairs(cryp_ticker, 'cryp')
 pairs_dict = {}
 
 pairs_dict = data_org.add_pairs(pairs_dict, polo_pairs_list, 0)
+pairs_dict = data_org.add_pairs(pairs_dict, bitt_pairs_list, 1)
+pairs_dict = data_org.add_pairs(pairs_dict, cryp_pairs_list, 2)
 print(pairs_dict)
 

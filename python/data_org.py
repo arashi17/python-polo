@@ -18,8 +18,8 @@ def add_pairs(pairs_dict, pairs_list, list_pos):
 	for i in range(len(pairs_list)):
 		pairs_split = sorted(re.split('-|_|/', pairs_list[i]))
 		legend = pairs_split[0] + '!' + pairs_split[1]
-		for key in pairs_dict.key():
-			found = False
+		found = False
+		for key in pairs_dict.keys():
 			if legend == key:  # pair is traded in another exchange
 				legend_list = pairs_dict[key].insert(list_pos, pairs_list[i])
 				found = True
@@ -30,6 +30,8 @@ def add_pairs(pairs_dict, pairs_list, list_pos):
 				pairs.append('')
 			pairs.append(pairs_list[i])
 			pairs_dict[legend] = pairs
+	for key in pairs_dict.keys():
+		if len(pairs_dict[key]) == list_pos:
+			pairs_dict[key].insert(list_pos, '')
 	return(pairs_dict)
-
 
