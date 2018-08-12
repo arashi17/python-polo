@@ -21,8 +21,10 @@
 # calcs.opp_search(pairs_dict)
 
 import cryp_api
+import bitt_api
+import polo_api
 
-print(cryp_api.get_cryp_data())
+print(polo_api.get_data())
 
 
 
