@@ -31,9 +31,17 @@ polo = polo_api.get_data()
 bitt = bitt_api.get_data()
 cryp = cryp_api.get_data()
 
+# print(polo)
+
 polo_bitt = org_data.compare_exc(polo, bitt)
-polo_cryp = org_data.compare_exc(polo, cryp)
-bitt_cryp = org_data.compare_exc(bitt, cryp)
+# polo_cryp = org_data.compare_exc(polo, cryp)
+# bitt_cryp = org_data.compare_exc(bitt, cryp)
 # print(polo_bitt)
 # print(polo_cryp)
-print(bitt_cryp)
+# print(bitt_cryp)
+
+polo_order_book = polo_api.get_order_book('BTC_ETC')
+# bitt_order_book = bitt_api.get_order_book('BTC-ETC')
+# cryp_order_book = cryp_api.get_order_book('ETC/BTC')
+print(polo_order_book)
+

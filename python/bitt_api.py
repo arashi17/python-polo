@@ -16,3 +16,18 @@ def get_data():
     ask = json_ticker['result'][i]['Ask']
     data_dict[pair] = [split_pair[0], split_pair[1], bid, ask]
   return data_dict
+
+
+def get_order_book(pair):
+  answer = requests.get(api_url + 'public/getorderbook?market=' + pair + '&type=both')
+  order_book = answer.json()
+  bid_list = []
+  ask_list = []
+  price_list = {}
+  for i in range(len(order_book['result']['buy'])):
+    bid_list.append([order_book['result']['buy'][i]['Rate'], order_book['result']['buy'][i]['Quantity']])
+  for i in range(len(order_book['result']['sell'])):
+    ask_list.append([order_book['result']['sell'][i]['Rate'], order_book['result']['sell'][i]['Quantity']])
+  price_list['Bid'] = bid_list
+  price_list['Ask'] = ask_list
+  return price_list
