@@ -31,9 +31,9 @@ polo = polo_api.get_data()
 bitt = bitt_api.get_data()
 cryp = cryp_api.get_data()
 
-# print(polo)
+# print(bitt)
 
-# polo_bitt = org_data.compare_exc(polo, bitt)
+polo_bitt = org_data.compare_exc(polo, bitt)
 # print(polo_bitt)
 # polo_cryp = org_data.compare_exc(polo, cryp)
 # print(polo_cryp)
@@ -41,8 +41,18 @@ cryp = cryp_api.get_data()
 # print(bitt_cryp)
 
 polo_order_book = polo_api.get_order_book('BTC_ETC')
-print(polo_order_book)
+# print(polo_order_book)
 # bitt_order_book = bitt_api.get_order_book('BTC-ETC')
 # cryp_order_book = cryp_api.get_order_book('ETC/BTC')
 
+for pair in polo_bitt.keys():
+  split_pair = pair.split('!')
+  if polo_bitt[pair][0] == '1':
+    pair = split_pair[0] + '_' + split_pair[1]
+    print(pair)
+    bid = polo_api.get_order_book(pair)['Bid']
+    pair = split_pair[0] + '-' + split_pair[1]
+    ask = bitt_api.get_order_book(pair)['Ask']
+print(bid[0])
+print(ask[0])
 

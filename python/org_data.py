@@ -21,7 +21,14 @@ def compare_exc(exc1, exc2):
         else:
           exc2_bid = (1 / exc2[exc2_key][2])
           exc2_ask = (1 / exc2[exc2_key][3])
-        if (exc1_bid > exc2_ask) or (exc2_bid > exc1_ask):
-          equiv_pairs[legend1] = [exc1[exc1_key], exc2[exc2_key]]
+        if exc1_bid > exc2_ask:
+          equiv_pairs[legend1] = ['1', '2']
+        else:
+          if exc2_bid > exc1_ask:
+            equiv_pairs[legend1] = ['2', '1']
 
   return equiv_pairs
+
+
+
+
