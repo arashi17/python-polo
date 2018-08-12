@@ -10,8 +10,8 @@ def get_data():
   json_ticker = answer.json()
   data_dict = {}
   for pair in json_ticker.keys():
+    split_pair = pair.split('_')
     bid = float(json_ticker[pair]['highestBid'])
     ask = float(json_ticker[pair]['lowestAsk'])
-    data_dict[pair] = [bid, ask]
+    data_dict[pair] = [split_pair[0], split_pair[1], bid, ask]
   return data_dict
-  
