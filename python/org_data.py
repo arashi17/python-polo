@@ -25,4 +25,3 @@ def compare_exc(exc1, exc2):
           equiv_pairs[legend1] = [exc1[exc1_key], exc1_bid, exc2[exc2_key], exc2_bid]
 
   return equiv_pairs
-
