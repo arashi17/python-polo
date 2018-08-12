@@ -1,7 +1,7 @@
 """ Data organization """
-
 import re
 
+""" Returns a dict with opportunities between 2 exchanges """
 def compare_exc(exc1, exc2):
   equiv_pairs = {}
   for exc1_key in exc1.keys():
@@ -22,6 +22,6 @@ def compare_exc(exc1, exc2):
           exc2_bid = (1 / exc2[exc2_key][2])
           exc2_ask = (1 / exc2[exc2_key][3])
         if (exc1_bid > exc2_ask) or (exc2_bid > exc1_ask):
-          equiv_pairs[legend1] = [exc1[exc1_key], exc1_bid, exc2[exc2_key], exc2_bid]
+          equiv_pairs[legend1] = [exc1[exc1_key], exc2[exc2_key]]
 
   return equiv_pairs
