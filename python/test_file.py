@@ -23,8 +23,17 @@
 import cryp_api
 import bitt_api
 import polo_api
+import org_data
+import time
 
-print(polo_api.get_data())
 
+polo = polo_api.get_data()
+bitt = bitt_api.get_data()
+cryp = cryp_api.get_data()
 
-
+polo_bitt = org_data.compare_exc(polo, bitt)
+polo_cryp = org_data.compare_exc(polo, cryp)
+bitt_cryp = org_data.compare_exc(bitt, cryp)
+# print(polo_bitt)
+# print(polo_cryp)
+print(bitt_cryp)
