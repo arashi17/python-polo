@@ -36,33 +36,20 @@ cryp = cryp_api.get_data()
 
 # compare between 2 exchanges
 prices = org_data.compare_exc(polo, bitt)
-# print(polo_bitt)
-# prices = org_data.compare_exc(polo, cryp)
-# print(polo_cryp)
-# prices = org_data.compare_exc(bitt, cryp)
-# print(bitt_cryp)
-
-# polo_order_book = polo_api.get_order_book('ETC!BTC')
-# print(polo_order_book)
-# bitt_order_book = bitt_api.get_order_book('LTC!USDT')
-# print(bitt_order_book)
-# cryp_order_book = cryp_api.get_order_book('BTC!ETC')
-
-# for legend in polo_bitt.keys():
-#   print(legend)
-#   if polo_bitt[legend][0] == '1':
-#     bid = polo_api.get_order_book(legend, depth)['Bid']
-#     ask = bitt_api.get_order_book(legend, depth)['Ask']
-#   else:
-#     bid = bitt_api.get_order_book(legend, depth)['Bid']
-#     ask = polo_api.get_order_book(legend, depth)['Ask']
-#   orders[legend] = [bid, ask]
-
-
-
-with open('data.json', 'w') as outfile:
+with open('polo_bitt.json', 'w') as outfile:
   json.dump(prices, outfile)
-print("data.json file has been written")
+print("polo_bitt.json file has been written")
 print(prices)
   # print('%s: %d, %d' % (legend, bid, ask))
 
+prices = org_data.compare_exc(polo, cryp)
+with open('polo_cryp.json', 'w') as outfile:
+  json.dump(prices, outfile)
+print("polo_cryp.json file has been written")
+print(prices)
+
+prices = org_data.compare_exc(bitt, cryp)
+with open('bitt_cryp.json', 'w') as outfile:
+  json.dump(prices, outfile)
+print("bitt_cryp.json file has been written")
+print(prices)
