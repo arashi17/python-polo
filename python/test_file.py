@@ -25,6 +25,7 @@ import bitt_api
 import polo_api
 import org_data
 import time
+import json
 
 # get data from all exchanges
 polo = polo_api.get_data()
@@ -34,11 +35,11 @@ cryp = cryp_api.get_data()
 # print(bitt)
 
 # compare between 2 exchanges
-polo_bitt = org_data.compare_exc(polo, bitt)
+prices = org_data.compare_exc(polo, bitt)
 # print(polo_bitt)
-# polo_cryp = org_data.compare_exc(polo, cryp)
+# prices = org_data.compare_exc(polo, cryp)
 # print(polo_cryp)
-# bitt_cryp = org_data.compare_exc(bitt, cryp)
+# prices = org_data.compare_exc(bitt, cryp)
 # print(bitt_cryp)
 
 # polo_order_book = polo_api.get_order_book('ETC!BTC')
@@ -47,17 +48,21 @@ polo_bitt = org_data.compare_exc(polo, bitt)
 # print(bitt_order_book)
 # cryp_order_book = cryp_api.get_order_book('BTC!ETC')
 
+# for legend in polo_bitt.keys():
+#   print(legend)
+#   if polo_bitt[legend][0] == '1':
+#     bid = polo_api.get_order_book(legend, depth)['Bid']
+#     ask = bitt_api.get_order_book(legend, depth)['Ask']
+#   else:
+#     bid = bitt_api.get_order_book(legend, depth)['Bid']
+#     ask = polo_api.get_order_book(legend, depth)['Ask']
+#   orders[legend] = [bid, ask]
 
 
-for legend in polo_bitt.keys():
-  if polo_bitt[legend][0] == '1':
-    bid = polo_api.get_order_book(legend)['Bid']
-    ask = bitt_api.get_order_book(legend)['Ask']
-  else:
-    bid = bitt_api.get_order_book(legend)['Bid']
-    ask = polo_api.get_order_book(legend)['Ask']
-  print(legend)
-  print(bid)
-  print(ask)
+
+with open('data.json', 'w') as outfile:
+  json.dump(prices, outfile)
+print("data.json file has been written")
+print(prices)
   # print('%s: %d, %d' % (legend, bid, ask))
 

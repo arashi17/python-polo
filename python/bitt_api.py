@@ -19,7 +19,7 @@ def legend2pairinv(legend):
 def get_data():
   answer = requests.get(api_url + 'public/getmarketsummaries')
   json_ticker = answer.json()
-  data_dict = {}
+  data_dict = {'Exchange' : 'bitt'}
   for i in range(len(json_ticker['result'])):
     pair = json_ticker['result'][i]['MarketName']
     split_pair = pair.split('-')
@@ -29,7 +29,7 @@ def get_data():
   return data_dict
 
 
-def get_order_book(legend):
+def get_order_book(legend, depth):
   pair = legend2pair(legend)
   answer = requests.get(api_url + 'public/getorderbook?market=' + pair + '&type=both')
   order_book = answer.json()
@@ -40,9 +40,9 @@ def get_order_book(legend):
   bid_list = []
   ask_list = []
   price_list = {}
-  for i in range(len(order_book['result']['buy'])):
+  for i in range(depth):
     bid_list.append([order_book['result']['buy'][i]['Rate'], order_book['result']['buy'][i]['Quantity']])
-  for i in range(len(order_book['result']['sell'])):
+  for i in range(depth):
     ask_list.append([order_book['result']['sell'][i]['Rate'], order_book['result']['sell'][i]['Quantity']])
   price_list['Bid'] = bid_list
   price_list['Ask'] = ask_list

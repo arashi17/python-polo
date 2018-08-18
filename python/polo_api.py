@@ -19,7 +19,7 @@ def legend2pairinv(legend):
 def get_data():
   answer = requests.get(api_url + 'returnTicker')
   json_ticker = answer.json()
-  data_dict = {}
+  data_dict = {'Exchange' : 'polo'}
   for pair in json_ticker.keys():
     split_pair = pair.split('_')
     bid = float(json_ticker[pair]['highestBid'])
@@ -28,13 +28,13 @@ def get_data():
   return data_dict
 
 
-def get_order_book(legend):
+def get_order_book(legend, depth):
   pair = legend2pair(legend)
-  answer = requests.get(api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=30')
+  answer = requests.get(api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=' + str(depth))
   order_book = answer.json()
   if 'error' in order_book:
     pair = legend2pairinv(legend)
-    answer = requests.get(api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=30')
+    answer = requests.get(api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=' + str(depth))
     order_book = answer.json()
   bid_list = []
   ask_list = []
