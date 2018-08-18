@@ -5,6 +5,17 @@ import json
 
 api_url = 'https://www.cryptopia.co.nz/api/'
 
+def legend2pair(legend):
+  split_legend = legend.split('!')
+  pair = split_legend[0] + '_' + split_legend[1]
+  return pair
+
+def legend2pairinv(legend):
+  split_legend = legend.split('!')
+  pair = split_legend[1] + '_' + split_legend[0]
+  return pair
+
+
 def get_data():
   answer = requests.get(api_url + 'GetMarkets')
   json_ticker = answer.json()
@@ -18,11 +29,15 @@ def get_data():
   return data_dict
 
 
-def get_order_book(pair):
-  split_pair = pair.split('/')
-  pair = split_pair[0] + '_' + split_pair[1]
+def get_order_book(legend):
+  pair = legend2pair(legend)
   answer = requests.get(api_url + 'GetMarketOrders/' + pair)
   order_book = answer.json()
+  if order_book['Error'] != None:
+    pair = legend2pairinv(legend)
+    answer = requests.get(api_url + 'GetMarketOrders/' + pair)
+    order_book = answer.json()
+  print(order_book)
   bid_list = []
   ask_list = []
   price_list = {}

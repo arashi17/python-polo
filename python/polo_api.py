@@ -5,6 +5,17 @@ import json
 
 api_url = 'https://poloniex.com/public?command='
 
+def legend2pair(legend):
+  split_legend = legend.split('!')
+  pair = split_legend[0] + '_' + split_legend[1]
+  return pair
+
+def legend2pairinv(legend):
+  split_legend = legend.split('!')
+  pair = split_legend[1] + '_' + split_legend[0]
+  return pair
+
+
 def get_data():
   answer = requests.get(api_url + 'returnTicker')
   json_ticker = answer.json()
@@ -17,10 +28,14 @@ def get_data():
   return data_dict
 
 
-def get_order_book(pair):
+def get_order_book(legend):
+  pair = legend2pair(legend)
   answer = requests.get(api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=30')
   order_book = answer.json()
-  print(order_book)
+  if 'error' in order_book:
+    pair = legend2pairinv(legend)
+    answer = requests.get(api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=30')
+    order_book = answer.json()
   bid_list = []
   ask_list = []
   price_list = {}

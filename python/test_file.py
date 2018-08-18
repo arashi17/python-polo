@@ -26,13 +26,14 @@ import polo_api
 import org_data
 import time
 
-
+# get data from all exchanges
 polo = polo_api.get_data()
 bitt = bitt_api.get_data()
 cryp = cryp_api.get_data()
 
 # print(bitt)
 
+# compare between 2 exchanges
 polo_bitt = org_data.compare_exc(polo, bitt)
 # print(polo_bitt)
 # polo_cryp = org_data.compare_exc(polo, cryp)
@@ -40,19 +41,23 @@ polo_bitt = org_data.compare_exc(polo, bitt)
 # bitt_cryp = org_data.compare_exc(bitt, cryp)
 # print(bitt_cryp)
 
-polo_order_book = polo_api.get_order_book('BTC_ETC')
+# polo_order_book = polo_api.get_order_book('ETC!BTC')
 # print(polo_order_book)
-# bitt_order_book = bitt_api.get_order_book('BTC-ETC')
-# cryp_order_book = cryp_api.get_order_book('ETC/BTC')
+# bitt_order_book = bitt_api.get_order_book('LTC!USDT')
+# print(bitt_order_book)
+# cryp_order_book = cryp_api.get_order_book('BTC!ETC')
 
-for pair in polo_bitt.keys():
-  split_pair = pair.split('!')
-  if polo_bitt[pair][0] == '1':
-    pair = split_pair[0] + '_' + split_pair[1]
-    print(pair)
-    bid = polo_api.get_order_book(pair)['Bid']
-    pair = split_pair[0] + '-' + split_pair[1]
-    ask = bitt_api.get_order_book(pair)['Ask']
-print(bid[0])
-print(ask[0])
+
+
+for legend in polo_bitt.keys():
+  if polo_bitt[legend][0] == '1':
+    bid = polo_api.get_order_book(legend)['Bid']
+    ask = bitt_api.get_order_book(legend)['Ask']
+  else:
+    bid = bitt_api.get_order_book(legend)['Bid']
+    ask = polo_api.get_order_book(legend)['Ask']
+  print(legend)
+  print(bid)
+  print(ask)
+  # print('%s: %d, %d' % (legend, bid, ask))
 

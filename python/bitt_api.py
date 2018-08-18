@@ -5,6 +5,17 @@ import json
 
 api_url = 'https://bittrex.com/api/v1.1/'
 
+def legend2pair(legend):
+  split_legend = legend.split('!')
+  pair = split_legend[0] + '-' + split_legend[1]
+  return pair
+
+def legend2pairinv(legend):
+  split_legend = legend.split('!')
+  pair = split_legend[1] + '-' + split_legend[0]
+  return pair
+
+
 def get_data():
   answer = requests.get(api_url + 'public/getmarketsummaries')
   json_ticker = answer.json()
@@ -18,9 +29,14 @@ def get_data():
   return data_dict
 
 
-def get_order_book(pair):
+def get_order_book(legend):
+  pair = legend2pair(legend)
   answer = requests.get(api_url + 'public/getorderbook?market=' + pair + '&type=both')
   order_book = answer.json()
+  if order_book['success'] == False and order_book['message'] == 'INVALID_MARKET':
+    pair = legend2pairinv(legend)
+    answer = requests.get(api_url + 'public/getorderbook?market=' + pair + '&type=both')
+    order_book = answer.json()
   bid_list = []
   ask_list = []
   price_list = {}
