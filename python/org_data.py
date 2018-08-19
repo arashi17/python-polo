@@ -25,7 +25,7 @@ def generic_get_order_book(exc, legend, depth, order_type):
 
 """
 def compare_exc(exc1, exc2):
-  depth = 5
+  depth = 10
   equiv_pairs = {}
   orders = {}
   for exc1_key in exc1.keys():
@@ -54,7 +54,6 @@ def compare_exc(exc1, exc2):
                 equiv_pairs[legend1] = [exc2['Exchange'], exc1['Exchange']]
 
   for legend in equiv_pairs.keys():
-    print(legend)
     bid = generic_get_order_book(equiv_pairs[legend][0], legend, depth, 'Bid')
     ask = generic_get_order_book(equiv_pairs[legend][1], legend, depth, 'Ask')
     bid.sort(key=itemgetter(0), reverse=True)
@@ -63,3 +62,43 @@ def compare_exc(exc1, exc2):
     orders[legend] = [bid, ask]
 
   return orders
+
+
+""" Profit calculation
+
+"""
+def profit_calc(orders):
+  total_profit = {}
+  for legend in orders.keys():
+    profit = 0
+    i = 0
+    j = 0
+    not_max_profit = True
+    bid_list = orders[legend][0]
+    ask_list = orders[legend][1]
+    while not_max_profit:
+      bid = bid_list[i]
+      bid_price = bid[0]
+      bid_vol = bid[1]
+      ask = ask_list[j]
+      ask_price = ask[0]
+      ask_vol = ask[1]
+      if bid_price > ask_price:
+        order_vol = min(bid_vol, ask_vol)
+        profit += order_vol * (bid_price - ask_price)
+        bid[1] -= order_vol
+        ask[1] -= order_vol
+        if bid[1] == 0:
+          if i == (len(bid_list) - 1):
+            not_max_profit = False
+          else:
+            i += 1
+        else:
+          if j == (len(ask_list) - 1):
+            not_max_profit = False
+          else:
+            j += 1
+      else:
+        not_max_profit = False
+    total_profit[legend] = profit
+  return total_profit

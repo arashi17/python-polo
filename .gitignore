@@ -1,6 +1,2 @@
 *.pyc
-/python/data.json
-/python/data_formatted.txt
-/python/bitt_cryp.json
-/python/polo_bitt.json
-/python/polo_cryp.json
+*.json

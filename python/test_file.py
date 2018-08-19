@@ -36,20 +36,22 @@ cryp = cryp_api.get_data()
 
 # compare between 2 exchanges
 prices = org_data.compare_exc(polo, bitt)
-with open('polo_bitt.json', 'w') as outfile:
-  json.dump(prices, outfile)
-print("polo_bitt.json file has been written")
-print(prices)
-  # print('%s: %d, %d' % (legend, bid, ask))
+total_profit = org_data.profit_calc(prices)
 
-prices = org_data.compare_exc(polo, cryp)
-with open('polo_cryp.json', 'w') as outfile:
-  json.dump(prices, outfile)
-print("polo_cryp.json file has been written")
-print(prices)
+# with open('polo_bitt.json', 'w') as outfile:
+#   json.dump(prices, outfile)
+# print("polo_bitt.json file has been written")
+# print(prices)
+#   # print('%s: %d, %d' % (legend, bid, ask))
 
-prices = org_data.compare_exc(bitt, cryp)
-with open('bitt_cryp.json', 'w') as outfile:
-  json.dump(prices, outfile)
-print("bitt_cryp.json file has been written")
-print(prices)
+# prices = org_data.compare_exc(polo, cryp)
+# with open('polo_cryp.json', 'w') as outfile:
+#   json.dump(prices, outfile)
+# print("polo_cryp.json file has been written")
+# print(prices)
+
+# prices = org_data.compare_exc(bitt, cryp)
+# with open('bitt_cryp.json', 'w') as outfile:
+#   json.dump(prices, outfile)
+# print("bitt_cryp.json file has been written")
+# print(prices)
