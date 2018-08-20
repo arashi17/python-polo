@@ -28,7 +28,7 @@ def run(i):
     json.dump(total_profit, outfile)
 
 
-total_scan_time = 3 # in hours
+total_scan_time = 7 # in hours
 interval = 10 # in minutes
 scans = total_scan_time * 60 / interval
 start_time = time.time()
@@ -36,9 +36,13 @@ for i in range(int(scans)):
   run_time = time.time()
   print('Run %d out of %d' % (i + 1, int(scans)))
   run(i)
-  print('Sleeping for %d minutes' % interval)
-  time.sleep(interval * 60)
-  end_run = (time.time() - run_time) / 60
-  print('Run %d took %d minutes' % (i + 1, int(end_run)))
+  elapsed_time = time.time() - run_time
+  interval_sec = (interval * 60) - elapsed_time
+  if interval_sec <= 0:
+    interval_sec = 10
+  print('Sleeping for %d seconds' % interval_sec)
+  time.sleep(interval_sec)
+  end_run = time.time() - run_time
+  print('Run %d took %d seconds' % (i + 1, end_run))
 total_time = (time.time() - start_time) / 60
 print('Total time: %d minutes' % int(total_time))
