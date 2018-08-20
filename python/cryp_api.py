@@ -29,7 +29,7 @@ def get_data():
   return data_dict
 
 
-def get_order_book(legend, depth):
+def get_order_book(legend, depth, inverted):
   pair = legend2pair(legend)
   answer = requests.get(api_url + 'GetMarketOrders/' + pair)
   order_book = answer.json()
@@ -39,12 +39,21 @@ def get_order_book(legend, depth):
     order_book = answer.json()
   bid_list = []
   ask_list = []
-  price_list = {}
-  for i in range(depth):
-    bid_list.append([order_book['Data']['Buy'][i]['Price'], order_book['Data']['Buy'][i]['Volume']])
-  for i in range(depth):
-    ask_list.append([order_book['Data']['Sell'][i]['Price'], order_book['Data']['Sell'][i]['Volume']])
-  price_list['Bid'] = bid_list
-  price_list['Ask'] = ask_list
-  return price_list
+  # print(pair)
+  # print(order_book)
+  if inverted == True:
+    price_dict = {'currency' : pair.split('_')[0]}
+    for i in range(depth):
+      bid_list.append([(1 / order_book['Data']['Buy'][i]['Price']), order_book['Data']['Buy'][i]['Volume']])
+    for i in range(depth):
+      ask_list.append([(1 / order_book['Data']['Sell'][i]['Price']), order_book['Data']['Sell'][i]['Volume']])
+  else:
+    price_dict = {'currency' : pair.split('_')[1]}
+    for i in range(depth):
+      bid_list.append([order_book['Data']['Buy'][i]['Price'], order_book['Data']['Buy'][i]['Volume']])
+    for i in range(depth):
+      ask_list.append([order_book['Data']['Sell'][i]['Price'], order_book['Data']['Sell'][i]['Volume']])
+  price_dict['Bid'] = bid_list
+  price_dict['Ask'] = ask_list
+  return price_dict
   
