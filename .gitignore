@@ -1,1 +1,3 @@
 *.pyc
+*.json
+/python/get_order_book.py

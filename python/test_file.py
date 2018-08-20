@@ -25,24 +25,33 @@ import bitt_api
 import polo_api
 import org_data
 import time
+import json
 
-
+# get data from all exchanges
 polo = polo_api.get_data()
 bitt = bitt_api.get_data()
 cryp = cryp_api.get_data()
 
-# print(polo)
+# print(bitt)
 
-# polo_bitt = org_data.compare_exc(polo, bitt)
-# print(polo_bitt)
-# polo_cryp = org_data.compare_exc(polo, cryp)
-# print(polo_cryp)
-# bitt_cryp = org_data.compare_exc(bitt, cryp)
-# print(bitt_cryp)
+# compare between 2 exchanges
+prices = org_data.compare_exc(polo, bitt)
+total_profit = org_data.profit_calc(prices)
 
-polo_order_book = polo_api.get_order_book('BTC_ETC')
-print(polo_order_book)
-# bitt_order_book = bitt_api.get_order_book('BTC-ETC')
-# cryp_order_book = cryp_api.get_order_book('ETC/BTC')
+# with open('polo_bitt.json', 'w') as outfile:
+#   json.dump(prices, outfile)
+# print("polo_bitt.json file has been written")
+# print(prices)
+#   # print('%s: %d, %d' % (legend, bid, ask))
 
+# prices = org_data.compare_exc(polo, cryp)
+# with open('polo_cryp.json', 'w') as outfile:
+#   json.dump(prices, outfile)
+# print("polo_cryp.json file has been written")
+# print(prices)
 
+# prices = org_data.compare_exc(bitt, cryp)
+# with open('bitt_cryp.json', 'w') as outfile:
+#   json.dump(prices, outfile)
+# print("bitt_cryp.json file has been written")
+# print(prices)
