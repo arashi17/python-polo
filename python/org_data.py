@@ -63,9 +63,13 @@ def compare_exc(exc1, exc2):
     ask_inverted = equiv_pairs[legend][3]
     order_book = generic_get_order_book(bid_exchange, legend, depth, 'Bid', bid_inverted)
     bid = order_book[1]
+    if len(bid) == 0:
+      break
     # print("%s: %s" % (equiv_pairs[legend][0], order_book[0]))
     order_book = generic_get_order_book(ask_exchange, legend, depth, 'Ask', ask_inverted)
     ask = order_book[1]
+    if len(ask) == 0:
+      break
     # print("%s: %s" % (equiv_pairs[legend][1], order_book[0]))
     bid.sort(key=itemgetter(0), reverse=True)
     ask.sort(key=itemgetter(0), reverse=False)
@@ -98,9 +102,9 @@ def profit_calc(orders):
       if bid_price > ask_price:
         order_vol = min(bid_vol, ask_vol)
         profit += order_vol * (bid_price - ask_price)
-        bid[1] -= order_vol
-        ask[1] -= order_vol
-        if bid[1] == 0:
+        bid_list[i][1] -= order_vol
+        ask_list[i][1] -= order_vol
+        if bid_list[i][1] <= 0:
           if i == (len(bid_list) - 1):
             not_max_profit = False
           else:
