@@ -74,7 +74,7 @@ class Polo:
     headers = {'Key': self.api_key, 'Sign': sign}
 
     r = requests.post(self.url, headers = headers, data = payload)
-    print(r.json())
+    # print(r.json())
 
   def buy(self, pair, rate, amount):
     payload = {'command': 'buy', 'nonce': int(time() * 1000), 'currencyPair': pair, 'rate': rate, 'amount': amount}
@@ -83,5 +83,15 @@ class Polo:
     headers = {'Key': self.api_key, 'Sign': sign}
 
     r = requests.post(self.url, headers = headers, data = payload)
-    print(r.json())
+    # print(r.json())
+
+  def sell(self, pair, rate, amount):
+    payload = {'command': 'sell', 'nonce': int(time() * 1000), 'currencyPair': pair, 'rate': rate, 'amount': amount}
+    paybytes = urllib.parse.urlencode(payload).encode('utf8')
+    sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
+    headers = {'Key': self.api_key, 'Sign': sign}
+
+    r = requests.post(self.url, headers = headers, data = payload)
+    # print(r.json())
+    
     
