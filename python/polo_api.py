@@ -94,4 +94,3 @@ class Polo:
     r = requests.post(self.url, headers = headers, data = payload)
     # print(r.json())
     
-    
