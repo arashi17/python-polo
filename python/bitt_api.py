@@ -3,6 +3,11 @@
 import requests
 import json
 
+from time import time
+import hmac
+import hashlib
+import urllib.parse
+
 api_url = 'https://bittrex.com/api/v1.1/'
 
 def legend2pair(legend):
@@ -56,3 +61,40 @@ def get_order_book(legend, depth, inverted):
   price_dict['Bid'] = bid_list
   price_dict['Ask'] = ask_list
   return price_dict
+
+class Bitt:
+  def __init__(self, api_key, api_secret):
+    self.api_key = api_key
+    self.api_secret = api_secret
+    self.url_market = 'https://bittrex.com/api/v1.1/market/'
+    self.url_account = 'https://bittrex.com/api/v1.1/account/'
+
+  def return_balance(self, currency):
+    nonce = str(int(time() * 1000))
+    url_add = 'getbalance?apikey=' + self.api_key + '&nonce=' + nonce + '&currency=' + currency
+    url = self.url_account + url_add
+    paybytes = url.encode('utf8')
+    sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
+    headers = {'apisign': sign}
+    r = requests.post(url, headers = headers)
+    print(r.json())
+
+  def buy(self, pair, rate, amount):
+    nonce = str(int(time() * 1000))
+    url_add = 'buylimit?apikey=' + self.api_key + '&nonce=' + nonce + '&market=' + pair + '&quantity=' + amount + '&rate=' + rate
+    url = self.url_market + url_add
+    paybytes = url.encode('utf8')
+    sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
+    headers = {'apisign': sign}
+    r = requests.post(url, headers = headers)
+    print(r.json())
+
+  def sell(self, pair, rate, amount):
+    nonce = str(int(time() * 1000))
+    url_add = 'selllimit?apikey=' + self.api_key + '&nonce=' + nonce + '&market=' + pair + '&quantity=' + amount + '&rate=' + rate
+    url = self.url_market + url_add
+    paybytes = url.encode('utf8')
+    sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
+    headers = {'apisign': sign}
+    r = requests.post(url, headers = headers)
+    print(r.json())
