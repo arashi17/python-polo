@@ -9,7 +9,7 @@ import os
 
 parser = argparse.ArgumentParser(description = 'Generate report from all files in the folder.')
 parser.add_argument('--path')
-parser.add_argument('--blues')
+parser.add_argument('-f', action='store_true')
 args = vars(parser.parse_args())
 
 
@@ -31,15 +31,23 @@ for filename in filelist:
   if filename not in filtered_filelist:
     with open(path + filename) as f:     
       loaded_data.append(json.load(f))
-print(args['blues'])
-if args['blues'] == 'Y':
+if args['f']:
   for i in range(len(loaded_data)):
     for legend in loaded_data[i].keys():
       if legend in considered_list:
-        temp_dict[legend] = loaded_data[i][legend]
+        if legend in temp_dict.keys():
+          temp_dict[legend][0] += loaded_data[i][legend][0]
+        else:
+          temp_dict[legend] = loaded_data[i][legend]
     loaded_data_filtered.append(temp_dict)
+  # with open(path + 'res_loaded_data_filtered.json', 'w') as f:
+  #   json.dump(loaded_data_filtered, f)  
 else:
   loaded_data_filtered = loaded_data.copy()
+  # with open(path + 'res_loaded_data.json', 'w') as f:
+  #   json.dump(loaded_data_filtered, f)  
+
+
 
 for i in range(len(loaded_data_filtered)):
   for legend in loaded_data_filtered[i].keys():
@@ -56,15 +64,24 @@ for i in range(len(loaded_data_filtered)):
           loaded_data_filtered[i + j][legend][0] = 0
         j += 1
 
+legends = []
 consolidated = {}
 for legend in total_profit:
   if total_profit[legend][1] in consolidated.keys():
     consolidated[total_profit[legend][1]] += total_profit[legend][0]
   else:
     consolidated[total_profit[legend][1]] = total_profit[legend][0]
+  if total_profit[legend][1] == 'BTC':
+    legends.append(legend)
+if args['f']:
+  suffix = '_filt'
+else:
+  suffix = '_all'
+with open(path + 'res_legends_btc' + suffix + '.json', 'w') as outcome:
+  json.dump(legends, outcome)
 
-with open(path + 'res_analyse.json', 'w') as outcome:
+with open(path + 'res_analyse' + suffix + '.json', 'w') as outcome:
   json.dump(total_profit, outcome)
 
-with open(path + 'res_consolidated.json', 'w') as outcome:
+with open(path + 'res_consolidated' + suffix + '.json', 'w') as outcome:
   json.dump(consolidated, outcome)

@@ -10,7 +10,7 @@ import json
 import time
 
 parser = argparse.ArgumentParser(description='Run.')
-parser.add_argument('--scan_time', type=int)
+parser.add_argument('--scan_time', type=float)
 parser.add_argument('--interval', type=int)
 parser.add_argument('--path')
 
@@ -22,16 +22,22 @@ def run(i, path):
   cryp = cryp_api.get_data()
 
   prices = org_data.compare_exc(polo, bitt)
+  # with open(path + 'pb.json', 'w') as outfile:
+  #   json.dump(prices, outfile)
   total_profit = org_data.profit_calc(prices)
   with open(path + 'polo_bitt' + str(i) + '.json', 'w') as outfile:
     json.dump(total_profit, outfile)
 
   prices = org_data.compare_exc(polo, cryp)
+  # with open(path + 'pc.json', 'w') as outfile:
+  #   json.dump(prices, outfile)
   total_profit = org_data.profit_calc(prices)
   with open(path + 'polo_cryp' + str(i) + '.json', 'w') as outfile:
     json.dump(total_profit, outfile)
 
   prices = org_data.compare_exc(bitt, cryp)
+  # with open(path + 'bc.json', 'w') as outfile:
+  #   json.dump(prices, outfile)
   total_profit = org_data.profit_calc(prices)
   with open(path + 'bitt_cryp' + str(i) + '.json', 'w') as outfile:
     json.dump(total_profit, outfile)

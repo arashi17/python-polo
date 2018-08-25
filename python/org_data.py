@@ -50,10 +50,10 @@ def compare_exc(exc1, exc2):
               exc2_bid = (1 / exc2[exc2_key][2])
               exc2_ask = (1 / exc2[exc2_key][3])
               inverted = True
-            if exc1_bid > exc2_ask:
+            if opp_check(exc1['Exchange'], exc2['Exchange'], exc1_bid, exc2_ask):
               equiv_pairs[legend1] = [exc1['Exchange'], exc2['Exchange'], False, inverted]
             else:
-              if exc2_bid > exc1_ask:
+              if opp_check(exc2['Exchange'], exc1['Exchange'], exc2_bid, exc1_ask):
                 equiv_pairs[legend2] = [exc2['Exchange'], exc1['Exchange'], inverted, False]
 
   for legend in equiv_pairs.keys():
@@ -85,25 +85,39 @@ def compare_exc(exc1, exc2):
 def profit_calc(orders):
   total_profit = {}
   for legend in orders.keys():
-    profit = 0
+    profit = 0.0
     i = 0
     j = 0
+    # print('Legend: ' + legend)
     not_max_profit = True
     bid_list = orders[legend][0]
     ask_list = orders[legend][1]
     currency = orders[legend][2]
+    # print('Bid List: ' + str(bid_list))
+    # print('Ask List: ' + str(ask_list))
+    # print('Currency: ' + currency)
     while not_max_profit:
+      # print('Bid i: %d  Ask j: %d' % (i, j))
       bid = bid_list[i]
       bid_price = bid[0]
       bid_vol = bid[1]
+      # print('Bid: ' + str(bid))
       ask = ask_list[j]
       ask_price = ask[0]
       ask_vol = ask[1]
+      # print('Ask: ' + str(ask))
+      # print('%.8f > %.8f' % (bid_price, ask_price))
       if bid_price > ask_price:
         order_vol = min(bid_vol, ask_vol)
+        # print('Order Vol: %.8f' % order_vol)
+        old_profit = profit
+        # print('Profit: %.8f' % old_profit)
         profit += order_vol * (bid_price - ask_price)
+        # print('Added: %.8f' % (profit - old_profit))
         bid_list[i][1] -= order_vol
-        ask_list[i][1] -= order_vol
+        ask_list[j][1] -= order_vol
+        # print('Bid List Updated: ' + str(bid_list[i][1]))
+        # print('Ask List Updated: ' + str(ask_list[j][1]))
         if bid_list[i][1] <= 0:
           if i == (len(bid_list) - 1):
             not_max_profit = False
@@ -118,3 +132,26 @@ def profit_calc(orders):
         not_max_profit = False
     total_profit[legend] = [profit, currency]
   return total_profit
+
+
+""" Opportunity check
+
+"""
+def opp_check(exc_a, exc_b, bid, ask):
+  if exc_a == 'polo' or exc_a == 'cryp':
+    fee_exc_a = 0.002
+  else:
+    if exc_a == 'bitt':
+      fee_exc_a = 0.0025
+  if exc_b == 'polo' or exc_b == 'cryp':
+    fee_exc_b = 0.002
+  else:
+    if exc_b == 'bitt':
+      fee_exc_b = 0.0025
+  bid = bid / (1 + fee_exc_a)
+  ask = ask / (1 - fee_exc_b)
+  if bid > ask:
+    return True
+  else:
+    return False
+
