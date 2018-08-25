@@ -3,6 +3,11 @@
 import requests
 import json
 
+from time import time
+import hmac
+import hashlib
+import urllib.parse
+
 api_url = 'https://poloniex.com/public?command='
 
 def legend2pair(legend):
@@ -55,3 +60,28 @@ def get_order_book(legend, depth, inverted):
   price_dict['Bid'] = bid_list
   price_dict['Ask'] = ask_list
   return price_dict
+
+class Polo:
+  def __init__(self, api_key, api_secret):
+    self.api_key = api_key
+    self.api_secret = api_secret
+    self.url = 'https://poloniex.com/tradingApi'
+
+  def return_balances(self):
+    payload = {'command': 'returnBalances', 'nonce': int(time() * 1000)}
+    paybytes = urllib.parse.urlencode(payload).encode('utf8')
+    sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
+    headers = {'Key': self.api_key, 'Sign': sign}
+
+    r = requests.post(self.url, headers = headers, data = payload)
+    print(r.json())
+
+  def buy(self, pair, rate, amount):
+    payload = {'command': 'buy', 'nonce': int(time() * 1000), 'currencyPair': pair, 'rate': rate, 'amount': amount}
+    paybytes = urllib.parse.urlencode(payload).encode('utf8')
+    sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
+    headers = {'Key': self.api_key, 'Sign': sign}
+
+    r = requests.post(self.url, headers = headers, data = payload)
+    print(r.json())
+    
