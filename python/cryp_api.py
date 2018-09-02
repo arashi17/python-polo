@@ -93,7 +93,11 @@ class Cryp:
     payload = str({'Currency' : currency})
     headers = self.secure_headers(url=url, payload=payload)
     r = requests.post(url, data=payload, headers=headers)
-    print(r.json())
+    balance = r.json()
+    if balance['Success'] == True:
+      return balance['Data'][0]['Total']
+    else:
+      return -1.0
 
 
   def buy(self, pair, rate, amount):

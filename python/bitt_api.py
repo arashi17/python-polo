@@ -77,7 +77,14 @@ class Bitt:
     sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
     headers = {'apisign': sign}
     r = requests.post(url, headers = headers)
-    print(r.json())
+    balance = r.json()
+    if balance['success'] == True:
+      if balance['result']['Balance'] == None:
+        return -1.0
+      else:
+        return balance['result']['Balance']
+    else:
+      return -1.0
 
   def buy(self, pair, rate, amount):
     nonce = str(int(time() * 1000))
