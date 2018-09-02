@@ -2,6 +2,7 @@
 import cryp_api
 import bitt_api
 import polo_api
+import jeol
 
 import re
 from operator import itemgetter
@@ -23,7 +24,7 @@ def generic_get_order_book(exc, legend, depth, order_type, inverted):
   return p_type
 
 """ Returns a dict with opportunities between 2 exchanges
-
+    Input is output of api.get_data()
 """
 def compare_exc(exc1, exc2):
   depth = 10
@@ -51,16 +52,18 @@ def compare_exc(exc1, exc2):
               exc2_ask = (1 / exc2[exc2_key][3])
               inverted = True
             if opp_check(exc1['Exchange'], exc2['Exchange'], exc1_bid, exc2_ask):
-              equiv_pairs[legend1] = [exc1['Exchange'], exc2['Exchange'], False, inverted]
+              equiv_pairs[legend1] = [exc1['Exchange'], exc2['Exchange'], False, inverted, exc1_key, exc2_key]
             else:
               if opp_check(exc2['Exchange'], exc1['Exchange'], exc2_bid, exc1_ask):
-                equiv_pairs[legend2] = [exc2['Exchange'], exc1['Exchange'], inverted, False]
+                equiv_pairs[legend2] = [exc2['Exchange'], exc1['Exchange'], inverted, False, exc2_key, exc1_key]
 
   for legend in equiv_pairs.keys():
     bid_exchange = equiv_pairs[legend][0]
     ask_exchange = equiv_pairs[legend][1]
     bid_inverted = equiv_pairs[legend][2]
     ask_inverted = equiv_pairs[legend][3]
+    bid_pair = equiv_pairs[legend][4]
+    ask_pair = equiv_pairs[legend][5]
     order_book = generic_get_order_book(bid_exchange, legend, depth, 'Bid', bid_inverted)
     bid = order_book[1]
     if len(bid) == 0:
@@ -74,9 +77,70 @@ def compare_exc(exc1, exc2):
     bid.sort(key=itemgetter(0), reverse=True)
     ask.sort(key=itemgetter(0), reverse=False)
     currency = order_book[0]
-    orders[legend] = [bid, ask, currency]
+    orders[legend] = [bid, ask, currency, bid_inverted, ask_inverted, bid_pair, ask_pair, bid_exchange, ask_exchange]
 
   return orders
+
+
+""" Compare analysis
+
+"""
+def create_orders(compare, considered_pairs):
+  orders = {}
+  for legend in compare.keys():
+    if legend in considered_pairs:
+      bid_list = compare[legend][0]
+      ask_list = compare[legend][1]
+      currency = compare[legend][2]
+      bid_inverted = compare[legend][3]
+      ask_inverted = compare[legend][4]
+      bid_pair = compare[legend][5]
+      ask_pair = compare[legend][6]
+      bid_exchange = compare[legend][7]
+      ask_exchange = compare[legend][8]
+      i = 0
+      j = 0
+      order_vol = 0.0
+      order_bid = 0.0
+      order_ask = 0.0
+      still_running = True
+      while still_running:
+        bid = bid_list[i]
+        bid_price = bid[0]
+        bid_vol = bid[1]
+        ask = ask_list[i]
+        ask_price = ask[0]
+        ask_vol = ask[1]
+        if opp_check(bid_exchange, ask_exchange, bid_price, ask_price):
+          vol = min(bid_vol, ask_vol)
+          if order_bid == 0.0:
+            order_bid = bid_price
+          else:
+            order_bid = min(order_bid, bid_price)
+          if order_ask == 0.0:
+            order_ask = ask_price
+          else:
+            order_ask = max(order_ask, ask_price)
+          order_vol += vol
+          print('Order Bid: %.8f, Order Ask: %.8f, Order Vol: %.8f' % (order_bid, order_ask, order_vol))
+          bid_list[i][1] -= vol
+          ask_list[j][1] -= vol
+          if bid_list[i][1] <= 0:
+            if i == (len(bid_list) - 1):
+              still_running = False
+            else:
+              i += 1
+          else:
+            if j == (len(bid_list) - 1):
+              still_running = False
+            else:
+              j += 1
+        else:
+          still_running = False
+      orders[legend] = [bid_exchange, bid_pair, order_bid, bid_inverted, ask_exchange, ask_pair, order_ask, ask_inverted, order_vol]
+  return orders
+
+
 
 
 """ Profit calculation
@@ -110,7 +174,7 @@ def profit_calc(orders):
       if bid_price > ask_price:
         order_vol = min(bid_vol, ask_vol)
         # print('Order Vol: %.8f' % order_vol)
-        old_profit = profit
+        # old_profit = profit
         # print('Profit: %.8f' % old_profit)
         profit += order_vol * (bid_price - ask_price)
         # print('Added: %.8f' % (profit - old_profit))
@@ -137,21 +201,63 @@ def profit_calc(orders):
 """ Opportunity check
 
 """
-def opp_check(exc_a, exc_b, bid, ask):
-  if exc_a == 'polo' or exc_a == 'cryp':
-    fee_exc_a = 0.002
+def opp_check(exc_bid, exc_ask, bid, ask):
+  if exc_bid == 'polo' or exc_bid == 'cryp':
+    fee_exc_bid = 0.002
   else:
-    if exc_a == 'bitt':
-      fee_exc_a = 0.0025
-  if exc_b == 'polo' or exc_b == 'cryp':
-    fee_exc_b = 0.002
+    if exc_bid == 'bitt':
+      fee_exc_bid = 0.0025
+  if exc_ask == 'polo' or exc_ask == 'cryp':
+    fee_exc_ask = 0.002
   else:
-    if exc_b == 'bitt':
-      fee_exc_b = 0.0025
-  bid = bid / (1 + fee_exc_a)
-  ask = ask / (1 - fee_exc_b)
+    if exc_ask == 'bitt':
+      fee_exc_ask = 0.0025
+  bid = bid / (1 + fee_exc_bid)
+  ask = ask / (1 - fee_exc_ask)
   if bid > ask:
     return True
   else:
     return False
+
+
+def create_considered_list(currencies):
+  considered_pairs = []
+  for i in range(len(currencies)):
+    for j in range((i + 1), len(currencies)):
+      considered_pairs.append(currencies[i] + '!' + currencies[j])
+      considered_pairs.append(currencies[j] + '!' + currencies[i])
+  return considered_pairs
+
+
+def get_balances(orders):
+  balance = {}
+  balances = {}
+  for pair in orders.keys():
+    split_pair1 = pair.split('!')[0]
+    split_pair2 = pair.split('!')[1]
+    bid_exchange = orders[pair][0]
+    ask_exchange = orders[pair][4]
+    if bid_exchange == 'polo' or ask_exchange == 'polo':
+      polo = polo_api.Polo(jeol.polo_1(), jeol.polo_2())
+      balance1 = polo.return_balance(split_pair1)
+      balance2 = polo.return_balance(split_pair2)
+      balance['polo'] = [balance1, split_pair1, balance2, split_pair2]
+    if bid_exchange == 'bitt' or ask_exchange == 'bitt':
+      bitt = bitt_api.Bitt(jeol.bitt_1(), jeol.bitt_2())
+      balance1 = bitt.return_balance(split_pair1)
+      balance2 = bitt.return_balance(split_pair2)
+      balance['bitt'] = [balance1, split_pair1, balance2, split_pair2]
+    if bid_exchange == 'cryp' or ask_exchange == 'cryp':
+      cryp = cryp_api.Cryp(jeol.cryp_1(), jeol.cryp_2())
+      balance1 = cryp.return_balance(split_pair1)
+      balance2 = cryp.return_balance(split_pair2)
+      balance['cryp'] = [balance1, split_pair1, balance2, split_pair2]
+    balances[pair] = balance
+  return balances
+
+
+def check_balances(balances, orders):
+  for pair in orders.keys():
+    bid_exchange = orders[pair][0]
+
 
