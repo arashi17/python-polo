@@ -73,7 +73,6 @@ class Cryp:
 
 
   def secure_headers(self, url, payload):
-    """ Creates secure header for cryptopia private api. """
     nonce = str(time())
     md5 = hashlib.md5()
     jsonparams = payload.encode('utf-8')
@@ -92,6 +91,24 @@ class Cryp:
     url_add = 'GetBalance'
     url = self.url + url_add
     payload = str({'Currency' : currency})
+    headers = self.secure_headers(url=url, payload=payload)
+    r = requests.post(url, data=payload, headers=headers)
+    print(r.json())
+
+
+  def buy(self, pair, rate, amount):
+    url_add = 'SubmitTrade'
+    url = self.url + url_add
+    payload = str({'Market': pair,'Type': 'Buy', 'Rate': rate, 'Amount': amount})
+    headers = self.secure_headers(url=url, payload=payload)
+    r = requests.post(url, data=payload, headers=headers)
+    print(r.json())
+
+
+  def sell(self, pair, rate, amount):
+    url_add = 'SubmitTrade'
+    url = self.url + url_add
+    payload = str({'Market': pair,'Type': 'Sell', 'Rate': rate, 'Amount': amount})
     headers = self.secure_headers(url=url, payload=payload)
     r = requests.post(url, data=payload, headers=headers)
     print(r.json())
