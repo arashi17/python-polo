@@ -20,8 +20,14 @@ def generic_get_order_book(exc, legend, depth, order_type, inverted):
     order_book = bitt_api.get_order_book(legend, depth, inverted)
   if exc == 'cryp':
     order_book = cryp_api.get_order_book(legend, depth, inverted)
-  p_type = [order_book['currency'], order_book[order_type]]
-  return p_type
+  if inverted:
+    if order_type == 'Bid':
+      order_type = 'Ask'
+    else:
+      if order_type == 'Ask':
+        order_type = 'Bid'
+  gen_order_book = [order_book['currency'], order_book[order_type]]
+  return gen_order_book
 
 """ Returns a dict with opportunities between 2 exchanges
     Input is output of api.get_data()
@@ -48,8 +54,8 @@ def compare_exc(exc1, exc2):
               exc2_bid = exc2[exc2_key][2]
               exc2_ask = exc2[exc2_key][3]
             else:
-              exc2_bid = (1 / exc2[exc2_key][2])
-              exc2_ask = (1 / exc2[exc2_key][3])
+              exc2_bid = (1 / exc2[exc2_key][3])
+              exc2_ask = (1 / exc2[exc2_key][2])
               inverted = True
             if opp_check(exc1['Exchange'], exc2['Exchange'], exc1_bid, exc2_ask):
               equiv_pairs[legend1] = [exc1['Exchange'], exc2['Exchange'], False, inverted, exc1_key, exc2_key]
@@ -67,12 +73,12 @@ def compare_exc(exc1, exc2):
     order_book = generic_get_order_book(bid_exchange, legend, depth, 'Bid', bid_inverted)
     bid = order_book[1]
     if len(bid) == 0:
-      break
+      continue
     # print("%s: %s" % (equiv_pairs[legend][0], order_book[0]))
     order_book = generic_get_order_book(ask_exchange, legend, depth, 'Ask', ask_inverted)
     ask = order_book[1]
     if len(ask) == 0:
-      break
+      continue
     # print("%s: %s" % (equiv_pairs[legend][1], order_book[0]))
     bid.sort(key=itemgetter(0), reverse=True)
     ask.sort(key=itemgetter(0), reverse=False)
