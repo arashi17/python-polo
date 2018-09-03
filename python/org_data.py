@@ -114,7 +114,7 @@ def create_orders(compare, considered_pairs):
         bid = bid_list[i]
         bid_price = bid[0]
         bid_vol = bid[1]
-        ask = ask_list[i]
+        ask = ask_list[j]
         ask_price = ask[0]
         ask_vol = ask[1]
         if opp_check(bid_exchange, ask_exchange, bid_price, ask_price):
