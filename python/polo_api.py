@@ -75,7 +75,7 @@ class Polo:
 
     r = requests.post(self.url, headers = headers, data = payload)
     balance = r.json()
-    balance = balance[currency]
+    balance = float(balance[currency])
     return balance
     
 
