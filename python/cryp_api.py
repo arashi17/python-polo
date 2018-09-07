@@ -1,5 +1,7 @@
 """ Cryptopia API """
 
+from polo_api import req_get
+
 import requests
 import json
 
@@ -9,6 +11,7 @@ import hashlib
 import base64
 from requests.compat import quote_plus
 
+CONN_TIMEOUT = 10
 
 api_url = 'https://www.cryptopia.co.nz/api/'
 
@@ -24,7 +27,8 @@ def legend2pairinv(legend):
 
 
 def get_data():
-  answer = requests.get(api_url + 'GetMarkets')
+  url = api_url + 'GetMarkets'
+  answer = req_get(url, CONN_TIMEOUT)
   json_ticker = answer.json()
   data_dict = {'Exchange' : 'cryp'}
   for i in range(len(json_ticker['Data'])):
@@ -38,11 +42,13 @@ def get_data():
 
 def get_order_book(legend, depth, inverted):
   pair = legend2pair(legend)
-  answer = requests.get(api_url + 'GetMarketOrders/' + pair)
+  url = api_url + 'GetMarketOrders/' + pair
+  answer = req_get(url, CONN_TIMEOUT)
   order_book = answer.json()
   if order_book['Error'] != None:
     pair = legend2pairinv(legend)
-    answer = requests.get(api_url + 'GetMarketOrders/' + pair)
+    url = api_url + 'GetMarketOrders/' + pair
+    answer = req_get(url, CONN_TIMEOUT)
     order_book = answer.json()
   bid_list = []
   ask_list = []
