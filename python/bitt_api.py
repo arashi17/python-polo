@@ -1,12 +1,15 @@
 """ Bittrex API """
 
+from polo_api import req_get
+
 import requests
 import json
-
 from time import time
 import hmac
 import hashlib
 import urllib.parse
+
+CONN_TIMEOUT = 10
 
 api_url = 'https://bittrex.com/api/v1.1/'
 
@@ -22,7 +25,8 @@ def legend2pairinv(legend):
 
 
 def get_data():
-  answer = requests.get(api_url + 'public/getmarketsummaries')
+  url = api_url + 'public/getmarketsummaries'
+  answer = req_get(url, CONN_TIMEOUT)
   json_ticker = answer.json()
   data_dict = {'Exchange' : 'bitt'}
   for i in range(len(json_ticker['result'])):
@@ -36,11 +40,13 @@ def get_data():
 
 def get_order_book(legend, depth, inverted):
   pair = legend2pair(legend)
-  answer = requests.get(api_url + 'public/getorderbook?market=' + pair + '&type=both')
+  url = api_url + 'public/getorderbook?market=' + pair + '&type=both'
+  answer = req_get(url, CONN_TIMEOUT)
   order_book = answer.json()
   if order_book['success'] == False and order_book['message'] == 'INVALID_MARKET':
     pair = legend2pairinv(legend)
-    answer = requests.get(api_url + 'public/getorderbook?market=' + pair + '&type=both')
+    url = api_url + 'public/getorderbook?market=' + pair + '&type=both'
+    answer = req_get(url, CONN_TIMEOUT)
     order_book = answer.json()
   bid_list = []
   ask_list = []
@@ -76,7 +82,7 @@ class Bitt:
     paybytes = url.encode('utf8')
     sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
     headers = {'apisign': sign}
-    r = requests.post(url, headers = headers)
+    r = requests.post(url, headers=headers)
     balance = r.json()
     if balance['success'] == True:
       if balance['result']['Balance'] == None:
@@ -93,7 +99,7 @@ class Bitt:
     paybytes = url.encode('utf8')
     sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
     headers = {'apisign': sign}
-    r = requests.post(url, headers = headers)
+    r = requests.post(url, headers=headers)
     print(r.json())
 
   def sell(self, pair, rate, amount):
@@ -103,5 +109,5 @@ class Bitt:
     paybytes = url.encode('utf8')
     sign = hmac.new(self.api_secret, paybytes, hashlib.sha512).hexdigest()
     headers = {'apisign': sign}
-    r = requests.post(url, headers = headers)
+    r = requests.post(url, headers=headers)
     print(r.json())
