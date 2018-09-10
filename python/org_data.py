@@ -236,13 +236,14 @@ def create_considered_list(currencies):
 
 
 def get_balances(orders):
-  balance = {}
   balances = {}
   for pair in orders.keys():
+    balance = {}
     split_pair1 = pair.split('!')[0]
     split_pair2 = pair.split('!')[1]
     bid_exchange = orders[pair][0]
     ask_exchange = orders[pair][4]
+    # print(pair, split_pair1, split_pair2, bid_exchange, ask_exchange)
     if bid_exchange == 'polo' or ask_exchange == 'polo':
       polo = polo_api.Polo(jeol.polo_1(), jeol.polo_2())
       balance1 = polo.return_balance(split_pair1)
@@ -263,7 +264,80 @@ def get_balances(orders):
 
 
 def check_balances(balances, orders):
+  return_bal = {}
   for pair in orders.keys():
     bid_exchange = orders[pair][0]
+    bid_pair = orders[pair][1]
+    bid_split_pair = re.split('-|_|/', bid_pair)
+    bid_price = orders[pair][2]
+    if bid_price <= 0:
+      continue
+    bid_inverted = orders[pair][3]
+    ask_exchange = orders[pair][4]
+    ask_pair = orders[pair][5]
+    ask_split_pair = re.split('-|_|/', ask_pair)
+    ask_price = orders[pair][6]
+    if ask_price <= 0:
+      continue
+    ask_inverted = orders[pair][7]
+    order_vol = orders[pair][8]
+    bid_total = (1 / bid_price) * order_vol
+    ask_total = ask_price * order_vol
+    if bid_exchange == 'cryp':
+      if bid_inverted:
+        bid_curr = bid_split_pair[1]
+      else:
+        bid_curr = bid_split_pair[0]
+    else:
+      if bid_inverted:
+        bid_curr = bid_split_pair[0]
+      else:
+        bid_curr = bid_split_pair[1]
+    if ask_exchange == 'cryp':
+      if ask_inverted:
+        ask_curr = ask_split_pair[0]
+      else:
+        ask_curr = ask_split_pair[1]
+    else:
+      if ask_inverted:
+        ask_curr = ask_split_pair[1]
+      else:
+        ask_curr = ask_split_pair[0]
+    if balances[pair][bid_exchange][1] == bid_curr:
+      bid_balance = balances[pair][bid_exchange][0]
+    else:
+      if balances[pair][bid_exchange][3] == bid_curr:
+        bid_balance = balances[pair][bid_exchange][2]
+    if balances[pair][ask_exchange][1] == ask_curr:
+      ask_balance = balances[pair][ask_exchange][0]
+    else:
+      if balances[pair][ask_exchange][3] == ask_curr:
+        ask_balance = balances[pair][ask_exchange][2]
+    # print(type(bid_balance), type(ask_balance))
+    print('Bid balance: %.8f %s, Ask balance: %.8f %s' % (bid_balance, bid_curr, ask_balance, ask_curr))
+    print('Bid total: %.8f %s, Ask total: %.8f %s' % (bid_total, bid_curr, ask_total, ask_curr))
+
+    if bid_balance > bid_total and ask_balance > ask_total:
+      return_bal[pair] = orders[pair]
+  #   return_bal[pair] = [bid_balance, bid_curr, ask_balance, ask_curr]
+  return return_bal
+
+
+# def execute_orders(orders):
+#   for pair in orders.keys():
+#     bid_exchange = orders[pair][0]
+#     bid_pair = orders[pair][1]
+#     bid_price = orders[pair][2]
+#     bid_inverted = orders[pair][3]
+#     ask_exchange = orders[pair][4]
+#     ask_pair = orders[pair][5]
+#     ask_price = orders[pair][6]
+#     ask_inverted = orders[pair][7]
+#     order_vol = orders[pair][8]
+#     polo = polo_api.Polo(jeol.polo_1(), jeol.polo_2())
+
+#     if bid_exchange == 'polo':
+#       if not bid_inverted:
+#         polo.return_balance('BTC')
 
 

@@ -23,20 +23,22 @@ def legend2pairinv(legend):
   return pair
 
 def req_get(url, t):
-  try:
-    r = requests.get(url, timeout=t)
-    if r.status_code == requests.codes.ok:
-      return r
-    else:
-      r.raise_for_status()
-  except requests.exceptions.HTTPError as errh:
-    print("Http Error:",errh)
-  except requests.exceptions.ConnectionError as errc:
-    print("Error Connecting:",errc)
-  except requests.exceptions.Timeout as errt:
-    print("Timeout Error:",errt)
-  except requests.exceptions.RequestException as err:
-    print("Ops: Something Else",err)
+  while True:
+    try:
+      r = requests.get(url, timeout=t)
+      if r.status_code == requests.codes.ok:
+        return r
+      else:
+        print(r.status_code)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+      print("Http Error:",errh)
+    except requests.exceptions.ConnectionError as errc:
+      print("Error Connecting:",errc)
+    except requests.exceptions.Timeout as errt:
+      print("Timeout Error:",errt)
+    except requests.exceptions.RequestException as err:
+      print("Ops: Something Else",err)
 
 
 def get_data():
@@ -57,7 +59,6 @@ def get_order_book(legend, depth, inverted):
   url = api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=' + str(depth)
   answer = req_get(url, CONN_TIMEOUT)
   order_book = answer.json()
-  print(order_book)
   if 'error' in order_book:
     pair = legend2pairinv(legend)
     url = api_url + 'returnOrderBook&currencyPair=' + pair + '&depth=' + str(depth)
@@ -97,7 +98,7 @@ class Polo:
 
     r = requests.post(self.url, headers = headers, data = payload)
     balance = r.json()
-    balance = balance[currency]
+    balance = float(balance[currency])
     return balance
     
 
